@@ -7,8 +7,8 @@ app.secret_key = "harmony_vintage_secret_key"
 
 # --- DATABASE CONNECTION ---
 # Paste your actual URL and Key here again!
-SUPABASE_URL = "YOUR_URL_HERE"
-SUPABASE_KEY = "YOUR_KEY_HERE"
+SUPABASE_URL = "https://pbygqrhorevuehbgdcnu.supabase.co"
+SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBieWdxcmhvcmV2dWVoYmdkY251Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE3NzA1MzcsImV4cCI6MjA5NzM0NjUzN30.aSkkj5xj9bqtZ2IcK2VSKMLzKZijb6qfVWmO_m89Yac"
 supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 @app.route('/')
