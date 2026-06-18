@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Ledger</title>
+    <style>
+        body { font-family: 'Georgia', serif; background-color: #F4EFE6; color: #4A3B32; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .card { background: #FFFFFF; padding: 30px; border: 1px solid #D1C7B7; box-shadow: 4px 4px 0px #D1C7B7; max-width: 400px; width: 100%; text-align: center; }
+        h1 { font-style: italic; margin-bottom: 5px; }
+        .error { color: #8C3A3A; font-family: sans-serif; font-size: 14px; margin-bottom: 15px; }
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #A89F91; background-color: #FDFCFB; font-family: 'Georgia', serif; font-size: 16px; box-sizing: border-box; }
+        button { background-color: #4A3B32; color: #F4EFE6; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px; }
+        button:hover { background-color: #2F251F; }
+        .toggle-btn { background: none; border: none; color: #7A6B62; text-decoration: underline; margin-top: 15px; cursor: pointer; color: #4A3B32;}
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h1>Room Ledger</h1>
+        <p style="text-transform: uppercase; letter-spacing: 2px; font-size: 12px;">Authentication Required</p>
+
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            {% for message in messages %}
+              <div class="error">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <form action="/login" method="POST">
+            <input type="text" name="room_name" placeholder="Room Name" required>
+            <input type="password" name="password" placeholder="Passcode" required>
+            
+            <select name="action" required>
+                <option value="join">Join Existing Room</option>
+                <option value="create">Create New Room</option>
+            </select>
+            
+            <button type="submit">Enter</button>
+        </form>
+    </div>
+</body>
+</html>

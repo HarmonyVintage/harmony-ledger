@@ -3,23 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Harmony Vintage Ledger</title>
+    <title>{{ room_name }} - Ledger</title>
     <style>
         body { font-family: 'Georgia', serif; background-color: #F4EFE6; color: #4A3B32; margin: 0; padding: 20px; }
         .container { max-width: 550px; margin: auto; }
-        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4A3B32; padding-bottom: 10px;}
+        .header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #4A3B32; padding-bottom: 10px; position: relative;}
         .header h1 { font-size: 32px; margin: 0; font-style: italic; letter-spacing: 1px;}
         .header p { margin: 5px 0 0 0; font-size: 14px; text-transform: uppercase; letter-spacing: 2px; }
+        .logout-btn { position: absolute; top: 0; right: 0; background: none; border: 1px solid #4A3B32; padding: 5px 10px; font-size: 12px; color: #4A3B32; text-decoration: none; text-transform: uppercase;}
+        .logout-btn:hover { background-color: #4A3B32; color: #F4EFE6; }
         .banner { background-color: #4A3B32; color: #F4EFE6; padding: 20px; text-align: center; margin-bottom: 25px; box-shadow: 2px 2px 5px rgba(0,0,0,0.2); }
         .banner h2 { margin: 0; font-size: 26px; font-weight: normal;}
         .card { background: #FFFFFF; padding: 20px; border: 1px solid #D1C7B7; margin-bottom: 25px; box-shadow: 2px 2px 0px #D1C7B7; }
         .card h3 { margin-top: 0; border-bottom: 1px dashed #D1C7B7; padding-bottom: 10px; font-weight: normal;}
-        .error { background-color: #8C3A3A; color: white; padding: 10px; text-align: center; margin-bottom: 20px; font-family: sans-serif; font-size: 14px;}
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #A89F91; background-color: #FDFCFB; font-family: 'Georgia', serif; font-size: 16px; box-sizing: border-box;}
+        input, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #A89F91; background-color: #FDFCFB; font-family: 'Georgia', serif; font-size: 16px; box-sizing: border-box;}
         button { background-color: #4A3B32; color: #F4EFE6; cursor: pointer; text-transform: uppercase; letter-spacing: 1px; margin-top: 15px;}
         button:hover { background-color: #2F251F; }
         .btn-danger { background-color: #8C3A3A; margin-top: 5px;}
-        .btn-danger:hover { background-color: #5C2525; }
         .btn-small { width: auto; padding: 5px 10px; font-size: 12px; margin: 0;}
         .totals-row { display: flex; justify-content: space-between; text-align: center; flex-wrap: wrap;}
         .totals-row div { width: 48%; margin-bottom: 15px;}
@@ -29,30 +29,16 @@
         .item-details span { font-size: 13px; color: #7A6B62; font-style: italic;}
         .amount { font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 15px;}
         .action-row { display: flex; gap: 10px;}
-        
-        /* Magic Print CSS for PDF Download */
-        @media print {
-            body { background-color: white; color: black; }
-            .no-print { display: none !important; }
-            .card { border: none; box-shadow: none; }
-            .expense-item { break-inside: avoid; }
-        }
+        @media print { body { background-color: white; color: black; } .no-print { display: none !important; } .card { border: none; box-shadow: none; } }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>Harmony Vintage</h1>
+            <a href="/logout" class="logout-btn no-print">Logout</a>
+            <h1>{{ room_name }}</h1>
             <p>Official Room Ledger</p>
         </div>
-
-        {% with messages = get_flashed_messages() %}
-          {% if messages %}
-            {% for message in messages %}
-              <div class="error no-print">{{ message }}</div>
-            {% endfor %}
-          {% endif %}
-        {% endwith %}
 
         <div class="banner no-print">
             <span style="font-size:12px; text-transform:uppercase; letter-spacing:1px;">Next Purchase Duty</span>
@@ -62,10 +48,11 @@
         <div class="card">
             <h3>Current Balances</h3>
             <div class="totals-row">
-                <div>Sujal<strong>₹{{ totals['Sujal'] }}</strong></div>
-                <div>Mehul<strong>₹{{ totals['Mehul'] }}</strong></div>
-                <div>Kyson<strong>₹{{ totals['Kyson'] }}</strong></div>
-                <div>Other<strong>₹{{ totals['Other'] }}</strong></div>
+                {% for person, total in totals.items() %}
+                <div>{{ person }}<strong>₹{{ total }}</strong></div>
+                {% else %}
+                <p style="width: 100%; text-align: center; color: #7A6B62;">No data yet.</p>
+                {% endfor %}
             </div>
             <p style="text-align: center; font-size: 13px; color: #7A6B62; margin-top: 0;">Target Average per person: ₹{{ "%.2f"|format(target_average) }}</p>
         </div>
@@ -73,15 +60,9 @@
         <div class="card no-print">
             <h3>Log New Expense</h3>
             <form action="/add" method="POST">
-                <input type="text" name="item_name" placeholder="Item description (e.g., Vegetables)" required>
+                <input type="text" name="item_name" placeholder="Item description" required>
                 <input type="number" name="amount" placeholder="Amount (₹)" required step="0.01">
-                <select name="paid_by" required>
-                    <option value="" disabled selected>Select category...</option>
-                    <option value="Sujal">Sujal</option>
-                    <option value="Mehul">Mehul</option>
-                    <option value="Kyson">Kyson (Under ₹50 only)</option>
-                    <option value="Other">Other</option>
-                </select>
+                <input type="text" name="paid_by" placeholder="Who paid? (e.g., Sujal)" required>
                 <button type="submit">Record Transaction</button>
             </form>
         </div>
@@ -92,7 +73,7 @@
             <div class="expense-item">
                 <div class="item-details">
                     <strong>{{ exp.item_name }}</strong>
-                    <span>Paid by {{ exp.paid_by }} • {{ exp.created_at[:10] }}</span>
+                    <span>Paid by {{ exp.paid_by }}</span>
                 </div>
                 <div class="amount">
                     ₹{{ exp.amount }}
@@ -105,9 +86,9 @@
         </div>
 
         <div class="action-row no-print">
-            <button onclick="window.print()">Download PDF / Print</button>
-            <form action="/reset" method="POST" style="width: 100%;" onsubmit="return confirm('Are you sure you want to completely erase the ledger?');">
-                <button type="submit" class="btn-danger">Reset Entire Ledger</button>
+            <button onclick="window.print()">Print PDF</button>
+            <form action="/reset" method="POST" style="width: 100%;" onsubmit="return confirm('Erase ledger for {{ room_name }}?');">
+                <button type="submit" class="btn-danger">Reset Ledger</button>
             </form>
         </div>
     </div>
